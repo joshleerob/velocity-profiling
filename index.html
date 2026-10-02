@@ -1,0 +1,768 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f6f3" media="(prefers-color-scheme: light)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Velocity Profile</title>
+<style>
+:root{
+  --bg:#f6f6f3; --surface:#ffffff; --surface-2:#efefea; --line:#e2e2dc;
+  --text:#16171a; --muted:#6b6d73; --faint:#9a9ca1;
+  --accent:#2f5bd8; --accent-ink:#ffffff; --accent-soft:#e6ecfb;
+  --good:#1f8a4c; --warn:#b4570f; --bad:#c23b3b;
+  --z-blue:#3b78e7; --z-green:#2fa35b; --z-yellow:#d9a514; --z-orange:#e8762b; --z-red:#d84444;
+  --radius:14px; --shadow:0 1px 2px rgba(0,0,0,.05),0 2px 10px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1115; --surface:#181b21; --surface-2:#22262e; --line:#2b3039;
+    --text:#ecedf0; --muted:#9a9fab; --faint:#6c717c;
+    --accent:#7b9dff; --accent-ink:#0f1115; --accent-soft:#1e2740;
+    --good:#4fc283; --warn:#f0a35e; --bad:#ef7676;
+    --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+.num,table,input{font-variant-numeric:tabular-nums}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.brand h1{font-size:17px;margin:0;letter-spacing:-.01em}
+.brand .sub{font-size:12px;color:var(--muted)}
+.seg{display:flex;background:var(--surface-2);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:600;padding:8px 0;border-radius:8px;cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+@media (prefers-color-scheme: dark){.seg button.on{background:#323844}}
+.seg.small button{padding:6px 0;font-size:13px}
+main{padding:14px 16px calc(84px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
+  display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+nav.tabs button{flex:1;border:0;background:none;color:var(--faint);font:inherit;font-size:11px;font-weight:600;padding:4px 0;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button.on{color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card h2{font-size:15px;margin:0 0 2px;letter-spacing:-.01em}
+.card .hint{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+.step{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-right:6px;vertical-align:1px}
+label.f{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px}
+input[type=text],input[type=date],input[inputmode]{width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--surface-2);border:1px solid transparent;border-radius:10px;padding:10px 11px;outline:none;min-width:0}
+input:focus{border-color:var(--accent);background:var(--surface)}
+input::placeholder{color:var(--faint)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.row{display:flex;gap:10px;align-items:center}
+.wu{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.wu:first-of-type{border-top:0}
+.wu .lbl{font-size:13px;line-height:1.25}
+.wu .lbl b{font-size:15px}
+.wu .lbl span{color:var(--muted);font-size:12px;display:block}
+.colhead{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr) minmax(0,1fr);gap:8px;font-size:11px;color:var(--faint);font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding-bottom:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--surface);color:var(--text);font:inherit;font-size:14px;font-weight:600;min-width:44px;padding:7px 8px;border-radius:9px;cursor:pointer}
+.chips button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.calc{display:flex;justify-content:space-between;align-items:center;background:var(--accent-soft);border-radius:10px;padding:9px 12px;margin-top:10px;font-size:13.5px}
+.calc b{font-size:17px}
+.reps{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.reps .r{position:relative}
+.reps .r span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--faint);font-weight:700;pointer-events:none}
+.reps .r input{padding-left:30px}
+.btn{border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:600;padding:11px 14px;border-radius:10px;cursor:pointer}
+.btn.ghost{background:var(--surface-2);color:var(--text)}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--line)}
+.btn.small{padding:7px 10px;font-size:13px}
+.btn:disabled{opacity:.5}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 13px;box-shadow:var(--shadow)}
+.tile .k{font-size:12px;color:var(--muted);font-weight:600}
+.tile .v{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+.tile .v small{font-size:13px;font-weight:600;color:var(--muted);margin-left:2px}
+.tile .s{font-size:12px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11px;color:var(--faint);font-weight:700;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding:6px 6px}
+th:first-child,td:first-child{text-align:left}
+td{padding:7px 6px;text-align:right;border-top:1px solid var(--line)}
+tr.hl td{background:var(--accent-soft)}
+tr.hl td:first-child{border-radius:8px 0 0 8px} tr.hl td:last-child{border-radius:0 8px 8px 0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.scroll{position:relative}
+.scroll table{width:max-content;min-width:100%}
+.scroll table td,.scroll table th{min-width:46px}
+.vl td.c{min-width:44px}
+.swipe{font-size:11.5px;color:var(--faint);margin-top:6px}
+.scroll table td,.scroll table th{padding:7px 7px}
+.sticky1 th:first-child,.sticky1 td:first-child{position:sticky;left:0;background:var(--surface);z-index:1;min-width:40px;box-shadow:6px 0 6px -6px rgba(0,0,0,.18)}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.muted{color:var(--muted)} .faint{color:var(--faint)}
+.small{font-size:12.5px}
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--surface-2);color:var(--muted)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.vl td{padding:3px}
+.vl td.c{border-radius:7px;text-align:center;font-weight:700;font-size:13px;cursor:pointer;height:38px;border:0}
+.vl tr td{border-top:0}
+.vl td.c.sel{outline:2px solid var(--text);outline-offset:-2px}
+.zone-detail{margin-top:10px;background:var(--surface-2);border-radius:10px;padding:10px 12px;font-size:13px}
+.zone-detail dt{font-weight:700;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:6px}
+.zone-detail dd{margin:1px 0 0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--muted);margin-top:10px}
+.big-out{font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+.big-out small{font-size:14px;font-weight:600;color:var(--muted);letter-spacing:0}
+.list-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+.list-item:first-child{border-top:0}
+.list-item .grow{flex:1;min-width:0}
+.list-item .t{font-weight:600}
+.list-item .d{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{text-align:center;color:var(--muted);padding:26px 10px}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:9px 14px;border-radius:10px;font-size:13.5px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10}
+.toast.on{opacity:1}
+.warn{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn);border-radius:10px;padding:9px 12px;font-size:13px;margin-bottom:12px}
+details summary{cursor:pointer;font-size:13px;color:var(--muted);font-weight:600}
+.spacer{height:6px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><h1>Velocity Profile</h1><span class="sub" id="curLabel"></span></div>
+  <div class="seg" id="liftSeg">
+    <button data-lift="SQ">Squat</button><button data-lift="BP">Bench</button><button data-lift="DL">Deadlift</button>
+  </div>
+</header>
+<main id="main"><noscript><div class="card" style="text-align:center;padding:22px 16px"><h2 style="margin-bottom:6px">Open this in a browser</h2><p class="hint" style="margin:0">This preview can't run the app. Open the link in Safari or Chrome.</p></div></noscript></main>
+<nav class="tabs" id="tabs">
+  <button data-tab="test"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6M10 4v5l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V4"/><path d="M7.5 15h9"/></svg>Test</button>
+  <button data-tab="results"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Results</button>
+  <button data-tab="gym"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 13l4-3M12 2v3"/></svg>Gym</button>
+  <button data-tab="saved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Saved</button>
+</nav>
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+<script>
+// ===== Velocity profile engine — port of RTS Velocity Tools v3 =====
+const WU_PCTS = [0.25, 0.40, 0.55, 0.65, 0.75, 0.85, 0.93];
+const WU_REPS = [5, 5, 3, 1, 1, 1, 1];
+const RPE_GRID = [10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6]; // LRV / VL rows
+const CHART_RPES = [10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5];
+const FRV_PCTS = [1, 0.9, 0.88, 0.8, 0.7, 0.68, 0.6, 0.5, 0.4, 0.3];
+const RPE_STEP_V = 0.06; // m/s per RPE point (sheet's fixed assumption)
+
+// Tuchscherer / RTS app chart (reps 1-12 x RPE 10..5), from the RTS site
+const CLASSIC = {
+  cols: [10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.5, 5],
+  rows: [
+    [100, 97.8, 95.5, 93.9, 92.2, 90.7, 89.2, 87.8, 86.3, 85, 83.7],
+    [95.5, 93.9, 92.2, 90.7, 89.2, 87.8, 86.3, 85, 83.7, 82.4, 81.1],
+    [92.2, 90.7, 89.2, 87.8, 86.3, 85, 83.7, 82.4, 81.1, 79.9, 78.6],
+    [89.2, 87.8, 86.3, 85, 83.7, 82.4, 81.1, 79.9, 78.6, 77.4, 76.2],
+    [86.3, 85, 83.7, 82.4, 81.1, 79.9, 78.6, 77.4, 76.2, 75.1, 73.9],
+    [83.7, 82.4, 81.1, 79.9, 78.6, 77.4, 76.2, 75.1, 73.9, 73.2, 72.4],
+    [81.1, 79.9, 78.6, 77.4, 76.2, 75.1, 73.9, 73.2, 72.4, 71.6, 70.7],
+    [78.6, 77.4, 76.2, 75.1, 73.9, 73.2, 72.4, 71.6, 70.7, 69.9, 69.1],
+    [76.2, 75.1, 73.9, 73.2, 72.4, 71.6, 70.7, 69.9, 69.1, 68.4, 67.6],
+    [73.9, 73.2, 72.4, 71.6, 70.7, 69.9, 69.1, 68.4, 67.6, 66.9, 66.3],
+    [72.4, 71.6, 70.7, 69.9, 69.1, 68.4, 67.6, 66.9, 66.3, 65.7, 65],
+    [70.7, 69.9, 69.1, 68.4, 67.6, 66.9, 66.3, 65.7, 65, 64.4, 63.8]
+  ]
+};
+function classicPct(reps, rpe) {
+  const c = CLASSIC.cols.indexOf(rpe);
+  if (c < 0 || reps < 1 || reps > 12) return null;
+  return CLASSIC.rows[reps - 1][c] / 100;
+}
+
+const num = v => (v === '' || v === null || v === undefined || isNaN(+v)) ? null : +v;
+const avg = arr => { const a = arr.filter(x => x !== null && x !== undefined && isFinite(x)); return a.length ? a.reduce((s, x) => s + x, 0) / a.length : null; };
+const round = (x, d) => Math.round(x * 10 ** d + 1e-9 * Math.sign(x)) / 10 ** d;
+const roundUp = (x, d) => Math.ceil(x * 10 ** d - 1e-9) / 10 ** d;
+const roundDown = (x, d) => Math.floor(x * 10 ** d + 1e-9) / 10 ** d;
+const plate = x => Math.round(x / 2.5) * 2.5;
+const rk = r => r.toFixed(1); // key for ref tables
+
+function quadFit(pts) { // least squares y = a x^2 + b x + c
+  if (pts.length < 3) return null;
+  let S = [0, 0, 0, 0, 0], T = [0, 0, 0];
+  for (const [x, y] of pts) { for (let k = 0; k < 5; k++) S[k] += x ** k; for (let k = 0; k < 3; k++) T[k] += y * x ** k; }
+  // normal equations: [S4 S3 S2; S3 S2 S1; S2 S1 S0] [a b c] = [T2 T1 T0]
+  const M = [[S[4], S[3], S[2], T[2]], [S[3], S[2], S[1], T[1]], [S[2], S[1], S[0], T[0]]];
+  for (let i = 0; i < 3; i++) {
+    let p = i; for (let r = i + 1; r < 3; r++) if (Math.abs(M[r][i]) > Math.abs(M[p][i])) p = r;
+    [M[i], M[p]] = [M[p], M[i]];
+    if (Math.abs(M[i][i]) < 1e-12) return null;
+    for (let r = 0; r < 3; r++) if (r !== i) { const f = M[r][i] / M[i][i]; for (let c = i; c < 4; c++) M[r][c] -= f * M[i][c]; }
+  }
+  return { a: M[0][3] / M[0][0], b: M[1][3] / M[1][1], c: M[2][3] / M[2][2] };
+}
+
+function prescribe(t) {
+  const proj = num(t.projTop);
+  const wu = WU_PCTS.map((p, i) => ({ pct: p, reps: WU_REPS[i], load: proj ? plate(proj * p) : null }));
+  return { wu };
+}
+
+function compute(t, REF) {
+  const out = { ok: false, warnings: [] };
+  const proj = num(t.projTop);
+  const sW = num(t.single && t.single.w) ?? proj;
+  const sRpe = num(t.single && t.single.rpe) ?? 9;
+  const sFrv = num(t.single && t.single.frv);
+  if (!sW) { out.warnings.push('Enter a projected top single to start.'); return out; }
+  const e1rm = Math.round(sW / REF.single[rk(sRpe)]);
+  out.e1rm = e1rm;
+  const amW = num(t.amrap && t.amrap.w);
+  out.amrapLoad = plate(e1rm * 0.8);
+  const aRpe = num(t.amrap && t.amrap.rpe);
+  const vels = ((t.amrap && t.amrap.vels) || []).map(num).filter(v => v !== null && v > 0);
+  const n = vels.length;
+
+  // v1RM
+  const vS = sFrv ? sFrv - (10 - sRpe) * RPE_STEP_V : null;
+  const vA = (n && aRpe !== null) ? vels[n - 1] - (10 - aRpe) * RPE_STEP_V : null;
+  out.v1rmSingle = vS; out.v1rmAmrap = vA;
+  const v1 = avg([vS, vA]);
+  out.v1rm = v1;
+  if (v1 === null) { out.warnings.push('Need the top single velocity or AMRAP velocities.'); return out; }
+
+  // FRV quadratic
+  const pts = [[1, v1]];
+  if (sFrv) pts.push([sW / e1rm, sFrv]);
+  const pre = prescribe(t).wu;
+  (t.warmups || []).forEach((w, i) => {
+    const f = num(w && w.frv); const wt = num(w && w.w) ?? pre[i].load;
+    if (f && wt) pts.push([wt / e1rm, f]);
+  });
+  if (amW && n) pts.push([amW / e1rm, vels[0]]);
+  const q = quadFit(pts);
+  out.frvPoints = pts;
+  out.quad = q;
+  const frvAt = p => q ? q.a * p * p + q.b * p + q.c : null;
+  out.frvAt = frvAt;
+  out.frvTable = FRV_PCTS.map(p => ({ pct: p, frv: frvAt(p), load: e1rm * p }));
+
+  // LRV — easy mode + AMRAP map + blend
+  const easy = {}; RPE_GRID.forEach(r => easy[r] = v1 + (10 - r) * RPE_STEP_V);
+  const rep = {}, K = {};
+  let prev = null;
+  for (const r of RPE_GRID) {
+    if (aRpe === null || !n || r > aRpe) rep[r] = null;
+    else if (r === aRpe) rep[r] = n;
+    else rep[r] = (prev === null || prev - 1 < 0.5) ? null : prev - 0.5;
+    prev = rep[r];
+  }
+  const Kint = r => (rep[r] !== null && Number.isInteger(rep[r])) ? (vels[rep[r] - 1] ?? null) : null;
+  RPE_GRID.forEach((r, i) => {
+    if (rep[r] === null) K[r] = null;
+    else if (Number.isInteger(rep[r])) K[r] = Kint(r);
+    else K[r] = avg([Kint(RPE_GRID[i - 1]), i + 1 < RPE_GRID.length ? Kint(RPE_GRID[i + 1]) : null]);
+  });
+  // half rows that average neighbours where the neighbour itself is a half (can't happen) – fine
+  const J = {};
+  J[10] = avg([K[10], easy[10], v1]);
+  [9, 8, 7, 6].forEach(r => J[r] = avg([easy[r], K[r]]));
+  [9.5, 8.5, 7.5, 6.5].forEach(r => J[r] = avg([J[r + 0.5], J[r - 0.5]]));
+  out.lrv = RPE_GRID.map((r, i) => {
+    const up = RPE_GRID[i - 1], dn = RPE_GRID[i + 1];
+    return {
+      rpe: r, target: J[r], easy: easy[r], amrap: K[r],
+      min: r === 10 ? v1 : roundUp(avg([J[r], J[up]]), 2),
+      max: dn === undefined ? roundDown(J[r], 2) : roundDown(avg([J[r], J[dn]]), 2)
+    };
+  });
+  out.J = J;
+
+  // Efficiency threshold (displayed) + zone inflection
+  const d = {}; [9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6].forEach(r => d[r] = round(J[r] - J[r + 0.5], 2));
+  const m = Math.max(...Object.values(d));
+  let infl = 10; for (const r of [6, 6.5, 7, 7.5, 8, 8.5, 9]) if (d[r] === m) { infl = r; break; }
+  out.inflection = infl;
+  let zInfl = 10;
+  if (Object.values(d).every(x => x === m)) zInfl = 8;
+  else for (const r of [6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5]) if (d[r] >= m) { zInfl = r; break; }
+  out.zoneInflection = zInfl;
+  out.lrvSteps = d;
+
+  // Rep capacity
+  if (amW && n && aRpe !== null) {
+    const pct = amW / e1rm;
+    const repMax = n + (10 - aRpe);
+    out.amrapPct = pct; out.repMax = repMax;
+    const pred = {};
+    for (const k of ['avg', 'high', 'low']) {
+      const row = REF[k][rk(aRpe)];
+      pred[k] = row ? 1 + row.filter(v => v >= pct).length : null;
+    }
+    out.repPred = pred;
+    const diffs = ['avg', 'high', 'low'].map(k => [k, Math.abs(pred[k] - repMax)]);
+    let best = diffs[0]; for (const dd of diffs) if (dd[1] < best[1]) best = dd;
+    out.repCapacity = best[0];
+
+    // Custom chart, RPE 10 row, reps 1..20
+    const ref10 = REF[best[0]]['10.0'];
+    const r10 = [];
+    for (let k = 1; k <= 20; k++) {
+      let v;
+      if (k === 1) v = 1;
+      else if (k === repMax) v = pct;
+      else if (k < repMax) v = r10[k - 2] - (1 - pct) / (repMax - 1);
+      else v = r10[k - 2] - (ref10[k - 2] - ref10[k - 1]);
+      r10.push(v);
+    }
+    const rows = { 10: r10 };
+    for (let r = 9; r >= 5; r--) {
+      const above = rows[r + 1], row = [];
+      for (let k = 1; k <= 20; k++) row.push(k < 20 ? above[k] : row[k - 2] - (above[k - 2] - above[k - 1]));
+      rows[r] = row;
+    }
+    for (let r = 9.5; r >= 5.5; r -= 1) rows[r] = rows[r + 0.5].map((v, i) => round((v + rows[r - 0.5][i]) / 2, 4));
+    out.chart = rows; // rows[rpe][reps-1] = fraction of 1RM
+    out.chartAt = (reps, rpe) => rows[rpe] ? rows[rpe][reps - 1] : null;
+
+    // Velocity loss table (reps 1..20 x RPE 10..6)
+    if (q) {
+      out.vl = RPE_GRID.map(r => {
+        const status = r - zInfl > 0.5 ? 'Above' : (r - zInfl < -0.5 ? 'Below' : 'Inflection');
+        const cells = [];
+        for (let k = 1; k <= 20; k++) {
+          const expF = frvAt(rows[r][k - 1]);
+          const vl = k === 1 ? 0 : Math.max(0, 1 - J[r] / expF);
+          let bi = 0; REF.vlThresh.forEach((t2, i) => { if (vl >= t2[0]) bi = i; });
+          const col = { Above: 2, Inflection: 3, Below: 4 }[status];
+          const zone = REF.vlThresh[bi][col];
+          cells.push({ reps: k, vl, zone, z: REF.zones[zone - 1], expFrv: expF });
+        }
+        return { rpe: r, status, cells };
+      });
+    }
+  } else out.warnings.push('Add the 80% AMRAP to get rep capacity, the RPE chart and the VL table.');
+  out.ok = true;
+  return out;
+}
+
+// helpers for the gym page
+function lrvToRpe(res, v) {
+  if (!res || !res.lrv) return null;
+  const L = res.lrv; // descending rpe, ascending velocity
+  if (v <= L[0].target) return { rpe: 10, clamp: v < L[0].target ? 'below' : null };
+  for (let i = 0; i < L.length - 1; i++) {
+    const a = L[i], b = L[i + 1];
+    if (v >= a.target && v <= b.target) {
+      const f = (v - a.target) / (b.target - a.target || 1);
+      return { rpe: a.rpe + (b.rpe - a.rpe) * f };
+    }
+  }
+  return { rpe: 6, clamp: 'above' };
+}
+function frvToPct(res, v) {
+  if (!res || !res.quad) return null;
+  // find pct in [0.2, 1.05] with frvAt(p) = v (frv decreasing in p over this range)
+  let lo = 0.2, hi = 1.05;
+  const f = p => res.frvAt(p) - v;
+  if (f(lo) * f(hi) > 0) return null;
+  for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (f(lo) * f(mid) <= 0) hi = mid; else lo = mid; }
+  return (lo + hi) / 2;
+}
+
+if (typeof module !== 'undefined') module.exports = { compute, prescribe, classicPct, lrvToRpe, frvToPct, CLASSIC, WU_PCTS, WU_REPS };
+
+const REF = {"avg": {"10.0": [1.0, 0.9755, 0.9517, 0.9284, 0.9057, 0.8835, 0.8619, 0.8409, 0.8203, 0.8002, 0.7807, 0.7616, 0.7429, 0.7248, 0.707, 0.6897, 0.6729, 0.6564, 0.6404, 0.6247], "9.5": [0.9877, 0.9635, 0.94, 0.917, 0.8946, 0.8727, 0.8513, 0.8305, 0.8102, 0.7904, 0.771, 0.7522, 0.7338, 0.7158, 0.6983, 0.6813, 0.6646, 0.6483, 0.6325, 0.617], "9.0": [0.9755, 0.9517, 0.9284, 0.9057, 0.8835, 0.8619, 0.8409, 0.8203, 0.8002, 0.7807, 0.7616, 0.7429, 0.7248, 0.707, 0.6897, 0.6729, 0.6564, 0.6404, 0.6247, 0.6094], "8.5": [0.9635, 0.94, 0.917, 0.8946, 0.8727, 0.8513, 0.8305, 0.8102, 0.7904, 0.771, 0.7522, 0.7338, 0.7158, 0.6983, 0.6813, 0.6646, 0.6483, 0.6325, 0.617, 0.6019], "8.0": [0.9517, 0.9284, 0.9057, 0.8835, 0.8619, 0.8409, 0.8203, 0.8002, 0.7807, 0.7616, 0.7429, 0.7248, 0.707, 0.6897, 0.6729, 0.6564, 0.6404, 0.6247, 0.6094, 0.5945], "7.5": [0.94, 0.917, 0.8946, 0.8727, 0.8513, 0.8305, 0.8102, 0.7904, 0.771, 0.7522, 0.7338, 0.7158, 0.6983, 0.6813, 0.6646, 0.6483, 0.6325, 0.617, 0.6019, 0.5872], "7.0": [0.9284, 0.9057, 0.8835, 0.8619, 0.8409, 0.8203, 0.8002, 0.7807, 0.7616, 0.7429, 0.7248, 0.707, 0.6897, 0.6729, 0.6564, 0.6404, 0.6247, 0.6094, 0.5945, 0.58], "6.5": [0.917, 0.8946, 0.8727, 0.8513, 0.8305, 0.8102, 0.7904, 0.771, 0.7522, 0.7338, 0.7158, 0.6983, 0.6813, 0.6646, 0.6483, 0.6325, 0.617, 0.6019, 0.5872, 0.5728], "6.0": [0.9057, 0.8835, 0.8619, 0.8409, 0.8203, 0.8002, 0.7807, 0.7616, 0.7429, 0.7248, 0.707, 0.6897, 0.6729, 0.6564, 0.6404, 0.6247, 0.6094, 0.5945, 0.58, 0.5658], "5.5": [0.8946, 0.8727, 0.8513, 0.8305, 0.8102, 0.7904, 0.771, 0.7522, 0.7338, 0.7158, 0.6983, 0.6813, 0.6646, 0.6483, 0.6325, 0.617, 0.6019, 0.5872, 0.5728, 0.5588], "5.0": [0.8835, 0.8619, 0.8409, 0.8203, 0.8002, 0.7807, 0.7616, 0.7429, 0.7248, 0.707, 0.6897, 0.6729, 0.6564, 0.6404, 0.6247, 0.6094, 0.5945, 0.58, 0.5658, 0.5519]}, "high": {"10.0": [1.0, 0.981, 0.9623, 0.9441, 0.9263, 0.9088, 0.8917, 0.875, 0.8585, 0.8424, 0.8266, 0.8111, 0.7959, 0.781, 0.7664, 0.752, 0.7379, 0.7241, 0.7105, 0.6972], "9.5": [0.9904, 0.9716, 0.9532, 0.9352, 0.9175, 0.9002, 0.8833, 0.8667, 0.8504, 0.8345, 0.8188, 0.8035, 0.7884, 0.7737, 0.7592, 0.7449, 0.731, 0.7173, 0.7038, 0.6906], "9.0": [0.981, 0.9623, 0.9441, 0.9263, 0.9088, 0.8917, 0.875, 0.8585, 0.8424, 0.8266, 0.8111, 0.7959, 0.781, 0.7664, 0.752, 0.7379, 0.7241, 0.7105, 0.6972, 0.6841], "8.5": [0.9716, 0.9532, 0.9352, 0.9175, 0.9002, 0.8833, 0.8667, 0.8504, 0.8345, 0.8188, 0.8035, 0.7884, 0.7737, 0.7592, 0.7449, 0.731, 0.7173, 0.7038, 0.6906, 0.6776], "8.0": [0.9623, 0.9441, 0.9263, 0.9088, 0.8917, 0.875, 0.8585, 0.8424, 0.8266, 0.8111, 0.7959, 0.781, 0.7664, 0.752, 0.7379, 0.7241, 0.7105, 0.6972, 0.6841, 0.6712], "7.5": [0.9532, 0.9352, 0.9175, 0.9002, 0.8833, 0.8667, 0.8504, 0.8345, 0.8188, 0.8035, 0.7884, 0.7737, 0.7592, 0.7449, 0.731, 0.7173, 0.7038, 0.6906, 0.6776, 0.6648], "7.0": [0.9441, 0.9263, 0.9088, 0.8917, 0.875, 0.8585, 0.8424, 0.8266, 0.8111, 0.7959, 0.781, 0.7664, 0.752, 0.7379, 0.7241, 0.7105, 0.6972, 0.6841, 0.6712, 0.6585], "6.5": [0.9352, 0.9175, 0.9002, 0.8833, 0.8667, 0.8504, 0.8345, 0.8188, 0.8035, 0.7884, 0.7737, 0.7592, 0.7449, 0.731, 0.7173, 0.7038, 0.6906, 0.6776, 0.6648, 0.6523], "6.0": [0.9263, 0.9088, 0.8917, 0.875, 0.8585, 0.8424, 0.8266, 0.8111, 0.7959, 0.781, 0.7664, 0.752, 0.7379, 0.7241, 0.7105, 0.6972, 0.6841, 0.6712, 0.6585, 0.6461], "5.5": [0.9175, 0.9002, 0.8833, 0.8667, 0.8504, 0.8345, 0.8188, 0.8035, 0.7884, 0.7737, 0.7592, 0.7449, 0.731, 0.7173, 0.7038, 0.6906, 0.6776, 0.6648, 0.6523, 0.64], "5.0": [0.9088, 0.8917, 0.875, 0.8585, 0.8424, 0.8266, 0.8111, 0.7959, 0.781, 0.7664, 0.752, 0.7379, 0.7241, 0.7105, 0.6972, 0.6841, 0.6712, 0.6585, 0.6461, 0.6339]}, "low": {"10.0": [1.0, 0.9657, 0.9323, 0.8999, 0.8684, 0.8379, 0.8084, 0.78, 0.7525, 0.726, 0.7006, 0.676, 0.6525, 0.6298, 0.6081, 0.5872, 0.5671, 0.5479, 0.5294, 0.5116], "9.5": [0.9828, 0.9489, 0.916, 0.884, 0.853, 0.823, 0.7941, 0.7661, 0.7391, 0.7132, 0.6882, 0.6641, 0.6411, 0.6189, 0.5975, 0.5771, 0.5574, 0.5386, 0.5204, 0.503], "9.0": [0.9657, 0.9323, 0.8999, 0.8684, 0.8379, 0.8084, 0.78, 0.7525, 0.726, 0.7006, 0.676, 0.6525, 0.6298, 0.6081, 0.5872, 0.5671, 0.5479, 0.5294, 0.5116, 0.4946], "8.5": [0.9489, 0.916, 0.884, 0.853, 0.823, 0.7941, 0.7661, 0.7391, 0.7132, 0.6882, 0.6641, 0.6411, 0.6189, 0.5975, 0.5771, 0.5574, 0.5386, 0.5204, 0.503, 0.4863], "8.0": [0.9323, 0.8999, 0.8684, 0.8379, 0.8084, 0.78, 0.7525, 0.726, 0.7006, 0.676, 0.6525, 0.6298, 0.6081, 0.5872, 0.5671, 0.5479, 0.5294, 0.5116, 0.4946, 0.4782], "7.5": [0.916, 0.884, 0.853, 0.823, 0.7941, 0.7661, 0.7391, 0.7132, 0.6882, 0.6641, 0.6411, 0.6189, 0.5975, 0.5771, 0.5574, 0.5386, 0.5204, 0.503, 0.4863, 0.4703], "7.0": [0.8999, 0.8684, 0.8379, 0.8084, 0.78, 0.7525, 0.726, 0.7006, 0.676, 0.6525, 0.6298, 0.6081, 0.5872, 0.5671, 0.5479, 0.5294, 0.5116, 0.4946, 0.4782, 0.4625], "6.5": [0.884, 0.853, 0.823, 0.7941, 0.7661, 0.7391, 0.7132, 0.6882, 0.6641, 0.6411, 0.6189, 0.5975, 0.5771, 0.5574, 0.5386, 0.5204, 0.503, 0.4863, 0.4703, 0.4549], "6.0": [0.8684, 0.8379, 0.8084, 0.78, 0.7525, 0.726, 0.7006, 0.676, 0.6525, 0.6298, 0.6081, 0.5872, 0.5671, 0.5479, 0.5294, 0.5116, 0.4946, 0.4782, 0.4625, 0.4474], "5.5": [0.853, 0.823, 0.7941, 0.7661, 0.7391, 0.7132, 0.6882, 0.6641, 0.6411, 0.6189, 0.5975, 0.5771, 0.5574, 0.5386, 0.5204, 0.503, 0.4863, 0.4703, 0.4549, 0.4401], "5.0": [0.8379, 0.8084, 0.78, 0.7525, 0.726, 0.7006, 0.676, 0.6525, 0.6298, 0.6081, 0.5872, 0.5671, 0.5479, 0.5294, 0.5116, 0.4946, 0.4782, 0.4625, 0.4474, 0.4329]}, "single": {"10.0": 1.0, "9.5": 0.9877, "9.0": 0.9755, "8.5": 0.9635, "8.0": 0.9517, "7.5": 0.94, "7.0": 0.9284, "6.5": 0.917, "6.0": 0.9057, "5.5": 0.8946, "5.0": 0.8835}, "vlThresh": [[0.0, "Very Low", 1.0, 6.0, 11.0], [0.1, "Low", 2.0, 7.0, 12.0], [0.25, "Moderate", 3.0, 8.0, 13.0], [0.4, "High", 4.0, 9.0, 14.0], [0.6, "Very High", 5.0, 10.0, 15.0]], "zones": [[1.0, "Above", "0-10%", "Late RFD.  Integrated skill expression", "Low structural stimulus.", "Very limited metabolic stimulus.", "Blue", "Dark w/grey text", "🏋️"], [2.0, "Above", "10-25%", "Late RFD.  Improved grinding ability.", "Tendon adaptations.  Limited hypertrophic adaptation.", "Very limited metabolic stimulus.", "Green", "Dark w/grey text", "🏋️🪢"], [3.0, "Above", "25-40%", "Late RFD.  Improved grinding ability.", "Classic Powerbuilding.  Hypertrophy+Tendon adaptation.", "Some effect on Energy delivery and utilization.", "Yellow", "Dark w/grey text", "⚙️🧱"], [4.0, "Above", "40-60%", "Late RFD.  Improved grinding ability.", "Classic bodybuilding.  Hypertrophy-per-set optimized.", "Energy delivery / Utilization", "Orange", "Dark w/grey text", "⚙️🧱"], [5.0, "Above", "60%+", "Late RFD.  Improved grinding ability.", "Classic bodybuilding.  Hypertrophy-per-set optimized.", "Energy delivery / Utilization", "Red", "Dark w/grey text", "⚙️🧱"], [6.0, "Equal", "0-10%", "Balanced early/late RFD.  High-specificity technical training.", "Limited structural adaptation.", "Limited metabolic stimulus", "Blue", "Bold", "🎯"], [7.0, "Equal", "10-25%", "Balanced early/late RFD.  High-quality strength stimulus.", "Some structural adaptation occurs.  Tendon adaptations are present.  Hypertrophy is present, but limited.", "Mild stimulus for energy delivery / utilization.  Mild work capacity and efficiency stimulus.", "Green", "Bold", "🎯🪢"], [8.0, "Equal", "25-40%", "Balanced early/late RFD.  Decent technical skill work.", "Moderate hypertrophy effects", "Mild stimulus for energy delivery / utilization.  Moderate work capacity stimulus.  Mild efficiency stimulus.", "Yellow", "Bold", "🧱🛠️"], [9.0, "Equal", "40-60%", "Balanced early/late RFD.  Reduced technical stimulus.", "Substantial hypertrophy effects", "Moderate stimulus for energy delivery / utilization.  Moderate efficiency stimulus.  Mild work capacity stimulus.", "Orange", "Bold", "🧱⏱"], [10.0, "Equal", "60%+", "Balanced early/late RFD.  Reduced technical stimulus.", "Substantial hypertrophy effects", "Moderate stimulus for energy delivery / utilization.  Moderate efficiency stimulus.  Mild work capacity stimulus.", "Red", "Bold", "🧱⏱"], [11.0, "Below", "0-10%", "Early RFD.  Lighter skill / technical work.", "Reduced structural stimulus", "Work capacity adaptations are emphasized.", "Blue", "Pale", "⚡🛠️"], [12.0, "Below", "10-25%", "Early RFD.  Lighter skill / technical work.", "Some structural (hypertrophy) adaptation occurs.", "Work capacity dominant.  Some efficiency adaptations occur.", "Green", "Pale", "⚡🛠️"], [13.0, "Below", "25-40%", "Early RFD.  Limited skill / technical stimulus", "Moderate hypertrophy effects", "Balanced development of work capacity and efficiency.", "Yellow", "Pale", "🛠️⏱"], [14.0, "Below", "40-60%", "Early RFD.  Limited skill / technical stimulus", "Moderate hypertrophy effects", "Training efficiency dominant.  Still strong work capacity adaptation.", "Orange", "Pale", "⏱"], [15.0, "Below", "60%+", "Early RFD.  Limited skill / technical stimulus", "Moderate hypertrophy effects", "Training efficiency dominant.  Still strong work capacity adaptation.", "Red", "Pale", "⏱"]]};
+</script>
+<script>
+const KEY = 'vbt-profile-v1';
+const LIFTS = { SQ: 'Squat', BP: 'Bench', DL: 'Deadlift' };
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const today = () => new Date().toISOString().slice(0, 10);
+const f2 = x => (x === null || x === undefined || !isFinite(x)) ? '–' : x.toFixed(2);
+const f3 = x => (x === null || x === undefined || !isFinite(x)) ? '–' : x.toFixed(3);
+const pct1 = x => (x === null || x === undefined || !isFinite(x)) ? '–' : (x * 100).toFixed(1);
+const kg = x => (x === null || x === undefined || !isFinite(x)) ? '–' : (Math.round(x / 2.5) * 2.5).toString();
+const rpeTxt = r => (r % 1 ? r.toFixed(1) : r.toFixed(0));
+const dateTxt = d => { if (!d) return 'Undated'; const [y, m, dd] = d.split('-'); return `${+dd} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m - 1]} ${y.slice(2)}`; };
+
+function blankTest(projTop = '') {
+  return { id: uid(), date: today(), notes: '', projTop, warmups: Array.from({ length: 7 }, () => ({ w: '', frv: '' })),
+    single: { w: '', rpe: '', frv: '' }, amrap: { w: '', rpe: '', vels: [''] }, updated: Date.now() };
+}
+function seed() {
+  return { lift: 'SQ', tab: 'test', lifts: { SQ: { tests: [], cur: null }, BP: { tests: [], cur: null }, DL: { tests: [], cur: null } }, ui: {} };
+}
+let store;
+try { store = JSON.parse(localStorage.getItem(KEY)); } catch (e) { store = null; }
+if (!store || !store.lifts) store = seed();
+store.ui = store.ui || {};
+let storageOK = true;
+function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); storageOK = true; } catch (e) { storageOK = false; } }
+
+const L = () => store.lifts[store.lift];
+const cur = () => L().tests.find(t => t.id === L().cur) || null;
+const resultsOf = t => t ? compute(t, REF) : null;
+
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 1800); }
+
+function render() {
+  $$('#liftSeg button').forEach(b => b.classList.toggle('on', b.dataset.lift === store.lift));
+  $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === store.tab));
+  const t = cur();
+  $('#curLabel').textContent = t ? `${LIFTS[store.lift]} · ${dateTxt(t.date)}` : LIFTS[store.lift];
+  ({ test: renderTest, results: renderResults, gym: renderGym, saved: renderSaved })[store.tab]();
+  if (!storageOK) $('#main').insertAdjacentHTML('afterbegin', `<div class="warn">This browser isn't letting the page save. Use Export on the Saved tab to keep your data.</div>`);
+}
+$('#liftSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; store.lift = b.dataset.lift; save(); render(); window.scrollTo(0, 0); });
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; store.tab = b.dataset.tab; save(); render(); window.scrollTo(0, 0); });
+
+function noTest(msg) {
+  return `<div class="card empty"><p>${msg}</p><button class="btn" id="newTest">Start a ${LIFTS[store.lift].toLowerCase()} test</button></div>`;
+}
+function wireNew() { const b = $('#newTest'); if (b) b.onclick = newTest; }
+function newTest() {
+  const prev = resultsOf(cur());
+  const t = blankTest(prev && prev.e1rm ? Math.round(prev.e1rm * 0.94 / 2.5) * 2.5 : '');
+  L().tests.push(t); L().cur = t.id; store.tab = 'test'; save(); render(); window.scrollTo(0, 0);
+}
+
+// ---------- TEST ----------
+function chips(name, vals, sel) {
+  return `<div class="chips" data-chips="${name}">${vals.map(v => `<button type="button" data-v="${v}" class="${+sel === v ? 'on' : ''}">${rpeTxt(v)}</button>`).join('')}</div>`;
+}
+const RPE_SINGLE = [6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
+const RPE_AMRAP = [5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
+function inp(path, val, ph = '', mode = 'decimal') {
+  return `<input inputmode="${mode}" data-path="${path}" value="${esc(val)}" placeholder="${esc(ph)}" autocomplete="off">`;
+}
+function renderTest() {
+  const t = cur();
+  if (!t) { $('#main').innerHTML = noTest('No test yet for this lift.'); wireNew(); return; }
+  const pre = prescribe(t).wu;
+  const r = resultsOf(t);
+  const vels = t.amrap.vels.length ? t.amrap.vels : [''];
+  $('#main').innerHTML = `
+  <div class="card">
+    <h2><span class="step">1</span>Setup</h2>
+    <p class="hint">You don't have to test all three lifts on the same day. Spread them over a week if you need to.</p>
+    <div class="grid2">
+      <div><label class="f">Date</label><input type="date" data-path="date" value="${esc(t.date)}"></div>
+      <div><label class="f">Projected top single (kg)</label>${inp('projTop', t.projTop, 'x1 @ 8–10')}</div>
+    </div>
+    <div class="spacer"></div>
+    <label class="f">Notes (device, kit, how you felt)</label><input type="text" data-path="notes" value="${esc(t.notes)}" placeholder="e.g. Metric VBT, belt, slept badly">
+  </div>
+
+  <div class="card">
+    <h2><span class="step">2</span>Warm-ups</h2>
+    <p class="hint">Max intent on the first rep of every set, and log the <b>first-rep velocity</b>. Leave actual weight blank if you used the prescribed load.</p>
+    <div class="colhead"><span>Set</span><span>Actual kg</span><span>FRV m/s</span></div>
+    ${pre.map((p, i) => `<div class="wu">
+      <div class="lbl"><b class="wuLoad" data-i="${i}">${p.load ?? '–'}</b> × ${p.reps}<span>${Math.round(p.pct * 100)}%</span></div>
+      ${inp(`warmups.${i}.w`, t.warmups[i].w, p.load ?? '')}
+      ${inp(`warmups.${i}.frv`, t.warmups[i].frv, '0.00')}
+    </div>`).join('')}
+  </div>
+
+  <div class="card">
+    <h2><span class="step">3</span>Top single</h2>
+    <div class="grid2">
+      <div><label class="f">Weight (kg)</label>${inp('single.w', t.single.w, t.projTop || '')}</div>
+      <div><label class="f">FRV (m/s)</label>${inp('single.frv', t.single.frv, '0.00')}</div>
+    </div>
+    <div class="spacer"></div>
+    <label class="f">RPE</label>${chips('single.rpe', RPE_SINGLE, t.single.rpe)}
+    <div class="calc"><span>Today's e1RM</span><b id="e1rmOut">${r && r.e1rm ? r.e1rm + ' kg' : '–'}</b></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">4</span>80% AMRAP</h2>
+    <p class="hint">As many reps as you safely can. You don't need to miss, but the higher the RPE, the better the test. Use spotters or safeties.</p>
+    <div class="calc" style="margin:0 0 10px"><span>Prescribed load (80% of today's e1RM)</span><b id="amrapPres">${r && r.e1rm ? r.amrapLoad + ' kg' : '–'}</b></div>
+    <div class="grid2">
+      <div><label class="f">Actual weight (kg)</label>${inp('amrap.w', t.amrap.w, r && r.amrapLoad ? r.amrapLoad : '')}</div>
+      <div></div>
+    </div>
+    <div class="spacer"></div>
+    <label class="f">RPE of the set</label>${chips('amrap.rpe', RPE_AMRAP, t.amrap.rpe)}
+    <div class="spacer"></div>
+    <label class="f">Velocity of every rep (m/s)</label>
+    <div class="reps" id="reps">${vels.map((v, i) => repField(i, v)).join('')}</div>
+    <p class="hint" style="margin:8px 0 0">A new box appears as you fill the last one. Leave out reps that ended for non-strength reasons (grip, balance).</p>
+  </div>
+  <div class="row" style="gap:8px">
+    <button class="btn" style="flex:1" id="seeResults">See results</button>
+  </div>`;
+
+  $('#main').oninput = e => {
+    const el = e.target; if (!el.dataset.path) return;
+    setPath(t, el.dataset.path, el.value);
+    if (el.dataset.path.startsWith('amrap.vels.')) {
+      const i = +el.dataset.path.split('.')[2];
+      const all = $$('#reps input');
+      if (i === all.length - 1 && el.value !== '' && all.length < 15) { t.amrap.vels.push(''); $('#reps').insertAdjacentHTML('beforeend', repField(all.length, '')); }
+    }
+    t.updated = Date.now(); save(); refreshDerived(t);
+  };
+  $$('[data-chips]').forEach(g => g.onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const v = +b.dataset.v; const path = g.dataset.chips;
+    const curV = getPath(t, path);
+    setPath(t, path, +curV === v ? '' : v);
+    $$('button', g).forEach(x => x.classList.toggle('on', +x.dataset.v === +getPath(t, path)));
+    t.updated = Date.now(); save(); refreshDerived(t);
+  });
+  $('#seeResults').onclick = () => { store.tab = 'results'; save(); render(); window.scrollTo(0, 0); };
+}
+function repField(i, v) { return `<div class="r"><span>${i + 1}</span>${inp(`amrap.vels.${i}`, v, '0.00')}</div>`; }
+function setPath(o, path, v) { const p = path.split('.'); let x = o; for (let i = 0; i < p.length - 1; i++) x = x[p[i]]; x[p[p.length - 1]] = v; }
+function getPath(o, path) { return path.split('.').reduce((x, k) => x && x[k], o); }
+function refreshDerived(t) {
+  const pre = prescribe(t).wu;
+  $$('.wuLoad').forEach(el => el.textContent = pre[+el.dataset.i].load ?? '–');
+  $$('[data-path^="warmups."][data-path$=".w"]').forEach(el => el.placeholder = pre[+el.dataset.path.split('.')[1]].load ?? '');
+  const sw = $('[data-path="single.w"]'); if (sw) sw.placeholder = t.projTop || '';
+  const r = resultsOf(t);
+  $('#e1rmOut').textContent = r && r.e1rm ? r.e1rm + ' kg' : '–';
+  $('#amrapPres').textContent = r && r.e1rm ? r.amrapLoad + ' kg' : '–';
+  const aw = $('[data-path="amrap.w"]'); if (aw) aw.placeholder = r && r.amrapLoad ? r.amrapLoad : '';
+  $('#curLabel').textContent = `${LIFTS[store.lift]} · ${dateTxt(t.date)}`;
+}
+
+// ---------- RESULTS ----------
+const REPS20 = Array.from({ length: 20 }, (_, i) => i + 1);
+const CAP = { avg: 'Average', high: 'High', low: 'Low' };
+const ZCOL = { Blue: 'var(--z-blue)', Green: 'var(--z-green)', Yellow: 'var(--z-yellow)', Orange: 'var(--z-orange)', Red: 'var(--z-red)' };
+
+function renderResults() {
+  const t = cur();
+  if (!t) { $('#main').innerHTML = noTest('No results yet for this lift.'); wireNew(); return; }
+  const r = resultsOf(t);
+  if (!r.ok) { $('#main').innerHTML = `<div class="card empty"><p>${esc(r.warnings[0] || 'Not enough data yet.')}</p><button class="btn" id="goTest">Go to test</button></div>`; $('#goTest').onclick = () => { store.tab = 'test'; save(); render(); }; return; }
+  const mode = store.ui.chartMode || 'yours';
+  const html = [];
+  if (r.warnings.length) html.push(`<div class="warn">${esc(r.warnings.join(' '))}</div>`);
+  html.push(`<div class="tiles">
+    <div class="tile"><div class="k">e1RM</div><div class="v num">${r.e1rm}<small>kg</small></div><div class="s">from ${t.single.w || t.projTop} @ ${t.single.rpe || 9}</div></div>
+    <div class="tile"><div class="k">Velocity at RPE 10</div><div class="v num">${f3(r.v1rm)}<small>m/s</small></div><div class="s">single ${f2(r.v1rmSingle)} · AMRAP ${f2(r.v1rmAmrap)}</div></div>
+    <div class="tile"><div class="k">Rep max at ${r.amrapPct ? Math.round(r.amrapPct * 100) + '%' : '80%'}</div><div class="v num">${r.repMax ?? '–'}<small>reps</small></div><div class="s">${r.repCapacity ? CAP[r.repCapacity] + ' rep capacity' : '–'}</div></div>
+    <div class="tile"><div class="k">Efficiency threshold</div><div class="v num">RPE ${rpeTxt(r.inflection)}</div><div class="s">where speed drops fastest</div></div>
+  </div>`);
+
+  html.push(`<div class="card"><h2>Stop-by-speed (last-rep velocity)</h2>
+    <p class="hint">If the last rep of a set moves at this speed, the set was about this RPE. The highlighted row is your efficiency threshold.</p>
+    <table><thead><tr><th>RPE</th><th>Target</th><th>Range</th></tr></thead><tbody>
+    ${r.lrv.map(x => `<tr class="${x.rpe === r.inflection ? 'hl' : ''}"><td><b>${rpeTxt(x.rpe)}</b></td><td class="num">${f3(x.target)}</td><td class="num muted">${x.rpe === 10 ? f3(x.min) : f2(x.min)}–${f2(x.max)}</td></tr>`).join('')}
+    </tbody></table></div>`);
+
+  if (r.chart) {
+    const cell = (reps, rpe) => {
+      const y = r.chart[rpe][reps - 1], c = classicPct(reps, rpe);
+      if (mode === 'yours') return pct1(y);
+      if (mode === 'classic') return c === null ? '–' : pct1(c);
+      if (mode === 'kg') return kg(y * r.e1rm);
+      if (c === null) return '–';
+      const d = (y - c) * 100; return `<span class="${d >= 0 ? 'pos' : 'neg'}">${d >= 0 ? '+' : ''}${d.toFixed(1)}</span>`;
+    };
+    html.push(`<div class="card"><h2>RPE chart</h2>
+      <p class="hint">${mode === 'diff' ? 'Percentage points above (+) or below (−) the classic RTS chart. Positive means you handle more of your 1RM for that set than the classic chart predicts.' : mode === 'kg' ? `Loads from your chart and your ${r.e1rm} kg e1RM, rounded to 2.5 kg.` : mode === 'classic' ? 'Tuchscherer\'s standard chart from the RTS app, for reference. It stops at 12 reps.' : 'Your custom chart, as % of 1RM.'}</p>
+      <div class="seg small" id="chartMode" style="margin-bottom:10px">
+        ${[['yours', 'Yours'], ['classic', 'Classic'], ['diff', 'Difference'], ['kg', 'kg']].map(([k, l]) => `<button data-m="${k}" class="${mode === k ? 'on' : ''}">${l}</button>`).join('')}
+      </div>
+      <div class="scroll"><table class="sticky1 wide"><thead><tr><th>RPE</th>${REPS20.map(n => `<th>${n}</th>`).join('')}</tr></thead><tbody>
+      ${CHART_RPES.map(p => `<tr><td><b>${rpeTxt(p)}</b></td>${REPS20.map(n => `<td class="num">${cell(n, p)}</td>`).join('')}</tr>`).join('')}
+      </tbody></table></div>
+      <div class="swipe">Reps across · swipe sideways for up to 20</div>
+      <div class="row" style="margin-top:12px;justify-content:space-between">
+        <span class="small muted">For the RTS app's RPE 10 column</span>
+        <button class="btn small ghost" id="copyCol">Copy column</button>
+      </div></div>`);
+  }
+
+  html.push(`<div class="card"><h2>First-rep velocity by load</h2>
+    <p class="hint">Expected speed of a max-intent first rep, from the curve fitted to your test.</p>
+    <table><thead><tr><th>% 1RM</th><th>Load</th><th>FRV</th></tr></thead><tbody>
+    ${r.frvTable.map(x => `<tr><td><b>${Math.round(x.pct * 100)}%</b></td><td class="num">${kg(x.load)} kg</td><td class="num">${f2(x.frv)}</td></tr>`).join('')}
+    </tbody></table></div>`);
+
+  if (r.vl) {
+    const sel = store.ui.vlSel;
+    html.push(`<div class="card"><h2>Expected velocity loss</h2>
+      <p class="hint">How much the bar should slow from first to last rep for each set. Under 10% builds strength with little fatigue; 10–25% is the sweet spot for strength; 25–40% mixes in hypertrophy; above 40% is mostly hypertrophy, with more fatigue. Tap a cell for details.</p>
+      <div class="scroll"><table class="vl sticky1"><thead><tr><th>RPE</th>${REPS20.map(n => `<th style="text-align:center">${n}</th>`).join('')}</tr></thead><tbody>
+      ${r.vl.map(row => `<tr><td><b>${rpeTxt(row.rpe)}</b></td>${row.cells.map(c => vlCell(row, c, sel)).join('')}</tr>`).join('')}
+      </tbody></table></div>
+      <div class="swipe">Reps across · swipe sideways for up to 20 · RPE 5.5 and 5 have no last-rep speed to compare against</div>
+      <div class="legend"><span>Shade = relative to threshold (RPE ${rpeTxt(r.zoneInflection)}): <b>solid</b> above · <b>outlined</b> at · <b>pale</b> below</span></div>
+      <div class="legend"><span>⚡ Early RFD</span><span>🏋️ Late RFD</span><span>⏱ Efficiency</span><span>🎯 Technique</span><span>⚙️ Grinding</span><span>🧱 Hypertrophy</span><span>🪢 Tendon</span><span>🛠️ Work cap.</span></div>
+      <div id="zoneDetail">${zoneDetail(r, sel)}</div>
+    </div>`);
+  }
+  html.push(`<details class="card"><summary>How this is calculated</summary>
+    <p class="small muted">e1RM uses the spreadsheet's built-in single-rep RPE chart. Velocity at RPE 10 averages two estimates: your top single and your last AMRAP rep, each pushed to RPE 10 at 0.06 m/s per RPE point. The stop-by-speed table blends that fixed-step model with your AMRAP reps. The RPE chart runs in a straight line from 100% at one rep to your AMRAP load at your estimated rep max, then follows the ${r.repCapacity ? CAP[r.repCapacity].toLowerCase() : 'average'} reference chart beyond it. First-rep speeds come from a quadratic fit through every set you logged.</p></details>`);
+  $('#main').innerHTML = html.join('');
+
+  const cm = $('#chartMode'); if (cm) cm.onclick = e => { const b = e.target.closest('button'); if (!b) return; store.ui.chartMode = b.dataset.m; save(); renderResults(); };
+  const cc = $('#copyCol'); if (cc) cc.onclick = () => {
+    const col = r.chart[10].slice(0, 12).map(v => (v * 100).toFixed(1)).join('\n');
+    (navigator.clipboard ? navigator.clipboard.writeText(col) : Promise.reject()).then(() => toast('Copied reps 1–12'), () => { prompt('Copy these values', col.replace(/\n/g, ', ')); });
+  };
+  $$('.vl td.c').forEach(td => td.onclick = () => {
+    store.ui.vlSel = td.dataset.k; save();
+    $$('.vl td.c').forEach(x => x.classList.toggle('sel', x === td));
+    $('#zoneDetail').innerHTML = zoneDetail(r, td.dataset.k);
+  });
+}
+function vlCell(row, c, sel) {
+  const z = c.z; const col = ZCOL[z[6]] || 'var(--z-blue)';
+  const k = `${row.rpe}-${c.reps}`;
+  let style;
+  if (row.status === 'Above') style = `background:${col};color:#fff`;
+  else if (row.status === 'Inflection') style = `background:color-mix(in srgb,${col} 30%,transparent);box-shadow:inset 0 0 0 2px ${col};color:var(--text)`;
+  else style = `background:color-mix(in srgb,${col} 18%,transparent);color:var(--text)`;
+  return `<td class="c ${sel === k ? 'sel' : ''}" data-k="${k}" style="${style}">${Math.round(c.vl * 100)}%</td>`;
+}
+function zoneDetail(r, k) {
+  if (!k) return '';
+  const [rpe, reps] = k.split('-').map(Number);
+  const row = r.vl.find(x => x.rpe === rpe); if (!row) return '';
+  const c = row.cells[reps - 1]; const z = c.z;
+  return `<div class="zone-detail"><b>${reps} rep${reps > 1 ? 's' : ''} @ RPE ${rpeTxt(rpe)}</b> · ${Math.round(c.vl * 100)}% velocity loss · ${z[8]}
+    <span class="pill" style="margin-left:4px">${row.status === 'Inflection' ? 'At threshold' : row.status + ' threshold'}</span>
+    <dl style="margin:4px 0 0"><dt>Skill</dt><dd>${esc(z[3])}</dd><dt>Structure</dt><dd>${esc(z[4])}</dd><dt>Metabolic</dt><dd>${esc(z[5])}</dd></dl>
+    <div class="small muted" style="margin-top:6px">Expected first rep ${f2(c.expFrv)} m/s → last rep ${f2(r.J[rpe])} m/s</div></div>`;
+}
+
+// ---------- GYM ----------
+function renderGym() {
+  const t = cur();
+  if (!t) { $('#main').innerHTML = noTest('Run a test first and this page will use your numbers.'); wireNew(); return; }
+  const r = resultsOf(t);
+  if (!r.ok) { $('#main').innerHTML = `<div class="card empty"><p>Finish the test to use the gym tools.</p></div>`; return; }
+  const g = store.ui.gym = store.ui.gym || { v: '', reps: 5, rpe: 8, e1rm: '', ww: '', wf: '' };
+  $('#main').innerHTML = `
+  <div class="card"><h2>Last rep speed → RPE</h2>
+    <p class="hint">Type the speed of the last rep of a set.</p>
+    <div class="grid2" style="align-items:end">
+      <div><label class="f">Last rep (m/s)</label><input inputmode="decimal" id="gV" value="${esc(g.v)}" placeholder="0.00"></div>
+      <div id="gVOut"></div>
+    </div>
+  </div>
+
+  <div class="card"><h2>Plan a set</h2>
+    <p class="hint">Load for a reps × RPE target, from your chart and the classic one, plus the speeds to expect.</p>
+    <div class="grid2">
+      <div><label class="f">e1RM (kg)</label><input inputmode="decimal" id="gE" value="${esc(g.e1rm)}" placeholder="${r.e1rm}"></div>
+      <div><label class="f">Reps</label><div class="row"><button class="btn ghost small" id="rm" style="width:42px">−</button><b class="num" id="gReps" style="flex:1;text-align:center;font-size:18px">${g.reps}</b><button class="btn ghost small" id="rp" style="width:42px">+</button></div></div>
+    </div>
+    <div class="spacer"></div>
+    <label class="f">RPE</label>${chips('gym.rpe', [6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10], g.rpe)}
+    <div id="planOut" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card"><h2>Today's e1RM from a warm-up</h2>
+    <p class="hint">Enter a max-intent warm-up and its first-rep speed to estimate today's strength against your tested profile.</p>
+    <div class="grid2">
+      <div><label class="f">Weight (kg)</label><input inputmode="decimal" id="gW" value="${esc(g.ww)}" placeholder="kg"></div>
+      <div><label class="f">FRV (m/s)</label><input inputmode="decimal" id="gF" value="${esc(g.wf)}" placeholder="0.00"></div>
+    </div>
+    <div id="readyOut" style="margin-top:12px"></div>
+  </div>`;
+  const upd = () => {
+    // LRV
+    const v = parseFloat(g.v);
+    if (isFinite(v) && v > 0) {
+      const x = lrvToRpe(r, v);
+      const near = Math.round(x.rpe * 2) / 2;
+      const note = x.clamp === 'below' ? 'slower than your RPE 10 speed' : x.clamp === 'above' ? 'faster than your RPE 6 speed' : `about RPE ${x.rpe.toFixed(1)}`;
+      $('#gVOut').innerHTML = `<div class="big-out">RPE ${x.clamp === 'above' ? '≤6' : rpeTxt(near)}</div><div class="small muted">${note}</div>`;
+    } else $('#gVOut').innerHTML = `<div class="small faint">RPE appears here</div>`;
+    // plan
+    const e = parseFloat(g.e1rm) || r.e1rm;
+    const yp = r.chart ? r.chart[g.rpe][g.reps - 1] : null, cp = classicPct(g.reps, g.rpe);
+    const load = yp ? e * yp : null;
+    const lr = r.lrv.find(x => x.rpe === g.rpe);
+    $('#planOut').innerHTML = `<table><tbody>
+      <tr><td>Your chart</td><td class="num">${yp ? pct1(yp) + '%' : '–'}</td><td class="num"><b>${load ? kg(load) + ' kg' : '–'}</b></td></tr>
+      <tr><td>Classic RTS</td><td class="num">${cp ? pct1(cp) + '%' : '–'}</td><td class="num">${cp ? kg(e * cp) + ' kg' : '–'}</td></tr>
+      <tr><td>First rep should move</td><td></td><td class="num">${yp ? f2(r.frvAt(yp)) + ' m/s' : '–'}</td></tr>
+      <tr><td>Stop when a rep drops to</td><td></td><td class="num">${lr ? f2(lr.target) + ' m/s' : '–'}</td></tr>
+    </tbody></table>`;
+    // readiness
+    const w = parseFloat(g.ww), f = parseFloat(g.wf);
+    if (w > 0 && f > 0) {
+      const p = frvToPct(r, f);
+      if (p) { const est = w / p; const d = est - r.e1rm;
+        $('#readyOut').innerHTML = `<div class="big-out num">${Math.round(est)} <small>kg e1RM</small></div><div class="small muted">That speed is ${Math.round(p * 100)}% of 1RM on your profile · <span class="${d >= 0 ? 'pos' : 'neg'}">${d >= 0 ? '+' : ''}${Math.round(d)} kg</span> vs tested ${r.e1rm} kg</div>`;
+      } else $('#readyOut').innerHTML = `<div class="small muted">That speed is outside your tested range.</div>`;
+    } else $('#readyOut').innerHTML = '';
+  };
+  upd();
+  const bind = (id, key) => $(id).oninput = e => { g[key] = e.target.value; save(); upd(); };
+  bind('#gV', 'v'); bind('#gE', 'e1rm'); bind('#gW', 'ww'); bind('#gF', 'wf');
+  $('#rm').onclick = () => { g.reps = Math.max(1, g.reps - 1); $('#gReps').textContent = g.reps; save(); upd(); };
+  $('#rp').onclick = () => { g.reps = Math.min(20, g.reps + 1); $('#gReps').textContent = g.reps; save(); upd(); };
+  $('[data-chips="gym.rpe"]').onclick = e => { const b = e.target.closest('button'); if (!b) return; g.rpe = +b.dataset.v; $$('[data-chips="gym.rpe"] button').forEach(x => x.classList.toggle('on', +x.dataset.v === g.rpe)); save(); upd(); };
+}
+
+// ---------- SAVED ----------
+function renderSaved() {
+  const tests = [...L().tests].sort((a, b) => (b.date || '').localeCompare(a.date || '') || b.updated - a.updated);
+  const items = tests.map(t => {
+    const r = resultsOf(t);
+    const on = t.id === L().cur;
+    return `<div class="list-item">
+      <div class="grow"><div class="t">${dateTxt(t.date)} ${on ? '<span class="pill acc">Open</span>' : ''}</div>
+      <div class="d">${r && r.ok ? `${r.e1rm} kg e1RM · ${f2(r.v1rm)} m/s @10${r.repCapacity ? ' · ' + CAP[r.repCapacity].toLowerCase() + ' reps' : ''}` : 'Incomplete'}${t.notes ? ' · ' + esc(t.notes) : ''}</div></div>
+      ${on ? '' : `<button class="btn small ghost" data-open="${t.id}">Open</button>`}
+      <button class="btn small danger" data-del="${t.id}">Delete</button>
+    </div>`;
+  }).join('');
+  $('#main').innerHTML = `
+  <div class="card"><div class="row" style="justify-content:space-between;margin-bottom:6px"><h2>${LIFTS[store.lift]} tests</h2><button class="btn small" id="newTest">New test</button></div>
+    ${tests.length ? items : `<div class="empty">No tests saved yet.</div>`}
+    <p class="hint" style="margin:10px 0 0">Everything saves as you type. The open test drives Results and Gym.</p>
+  </div>
+  <div class="card"><h2>Backup</h2>
+    <p class="hint">Data lives in this browser on this device only. Export a backup file now and then, and import it to move your tests to another phone or browser.</p>
+    <div class="row"><button class="btn ghost" id="exp" style="flex:1">Export all</button><button class="btn ghost" id="imp" style="flex:1">Import</button></div>
+  </div>`;
+  wireNew();
+  $$('[data-open]').forEach(b => b.onclick = () => { L().cur = b.dataset.open; save(); store.tab = 'results'; render(); });
+  $$('[data-del]').forEach(b => b.onclick = () => {
+    if (b.dataset.armed) {
+      L().tests = L().tests.filter(t => t.id !== b.dataset.del);
+      if (L().cur === b.dataset.del) L().cur = L().tests.length ? L().tests[L().tests.length - 1].id : null;
+      save(); render(); toast('Test deleted');
+    } else { b.dataset.armed = 1; b.textContent = 'Confirm'; setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = 'Delete'; } }, 3000); }
+  });
+  $('#exp').onclick = () => {
+    const blob = new Blob([JSON.stringify({ app: 'velocity-profile', v: 1, exported: new Date().toISOString(), lifts: store.lifts }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `velocity-profile-${today()}.json`;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  };
+  $('#imp').onclick = () => $('#importFile').click();
+}
+$('#importFile').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (!data.lifts) throw 0;
+    let n = 0;
+    for (const k of Object.keys(LIFTS)) {
+      const inc = (data.lifts[k] && data.lifts[k].tests) || [];
+      for (const t of inc) {
+        const i = store.lifts[k].tests.findIndex(x => x.id === t.id);
+        if (i >= 0) store.lifts[k].tests[i] = t; else store.lifts[k].tests.push(t);
+        n++;
+      }
+      if (!store.lifts[k].cur && store.lifts[k].tests.length) store.lifts[k].cur = store.lifts[k].tests[store.lifts[k].tests.length - 1].id;
+    }
+    save(); render(); toast(`Imported ${n} test${n === 1 ? '' : 's'}`);
+  } catch (err) { toast("That file isn't a Velocity Profile backup"); }
+  e.target.value = '';
+};
+
+render();
+
+</script>
+</body>
+</html>
