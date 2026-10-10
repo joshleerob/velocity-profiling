@@ -355,13 +355,17 @@ function lrvToRpe(res, v) {
   return { rpe: 6, clamp: 'above' };
 }
 function frvToPct(res, v) {
-  if (!res || !res.quad) return null;
-  // find pct in [0.2, 1.05] with frvAt(p) = v (frv decreasing in p over this range)
-  let lo = 0.2, hi = 1.05;
-  const f = p => res.frvAt(p) - v;
-  if (f(lo) * f(hi) > 0) return null;
-  for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (f(lo) * f(mid) <= 0) hi = mid; else lo = mid; }
-  return (lo + hi) / 2;
+  // Returns { pct } or { reason }. Scans from heavy to light so a curved fit can't hide the answer.
+  if (!res || !res.quad) return { reason: 'nocurve' };
+  const HI = 1.1, LO = 0.15, STEP = 0.0025;
+  if (res.frvAt(HI) >= v) return { reason: 'slow' };
+  let prevP = HI, prevF = res.frvAt(HI);
+  for (let p = HI - STEP; p >= LO - 1e-9; p -= STEP) {
+    const f = res.frvAt(p);
+    if (f >= v) return { pct: prevP + (p - prevP) * (v - prevF) / (f - prevF) };
+    prevP = p; prevF = f;
+  }
+  return { reason: 'fast' };
 }
 
 if (typeof module !== 'undefined') module.exports = { compute, prescribe, classicPct, lrvToRpe, frvToPct, CLASSIC, WU_PCTS, WU_REPS };
@@ -689,10 +693,14 @@ function renderGym() {
     // readiness
     const w = parseFloat(g.ww), f = parseFloat(g.wf);
     if (w > 0 && f > 0) {
-      const p = frvToPct(r, f);
-      if (p) { const est = w / p; const d = est - r.e1rm;
+      const res = frvToPct(r, f);
+      if (res.pct) { const p = res.pct; const est = w / p; const d = est - r.e1rm;
         $('#readyOut').innerHTML = `<div class="big-out num">${Math.round(est)} <small>kg e1RM</small></div><div class="small muted">That speed is ${Math.round(p * 100)}% of 1RM on your profile · <span class="${d >= 0 ? 'pos' : 'neg'}">${d >= 0 ? '+' : ''}${Math.round(d)} kg</span> vs tested ${r.e1rm} kg</div>`;
-      } else $('#readyOut').innerHTML = `<div class="small muted">That speed is outside your tested range.</div>`;
+      } else $('#readyOut').innerHTML = `<div class="small muted">${{
+        nocurve: 'There isn\'t enough logged data to fit a speed curve for this lift yet. Add the warm-up speeds from your test.',
+        slow: `That's slower than your profile predicts even at 110% of 1RM, so it can't be read as a max-intent rep. Check the number, or retest.`,
+        fast: `That's faster than your profile predicts even at 15% of 1RM.`
+      }[res.reason]}</div>`;
     } else $('#readyOut').innerHTML = '';
   };
   upd();
