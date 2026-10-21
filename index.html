@@ -641,7 +641,9 @@ function renderGym() {
   if (!t) { $('#main').innerHTML = noTest('Run a test first and this page will use your numbers.'); wireNew(); return; }
   const r = resultsOf(t);
   if (!r.ok) { $('#main').innerHTML = `<div class="card empty"><p>Finish the test to use the gym tools.</p></div>`; return; }
-  const g = store.ui.gym = store.ui.gym || { v: '', reps: 5, rpe: 8, e1rm: '', ww: '', wf: '' };
+  // gym inputs are kept per lift; older saves held one shared object, which is dropped
+  if (!store.ui.gym || 'v' in store.ui.gym) store.ui.gym = {};
+  const g = store.ui.gym[store.lift] = store.ui.gym[store.lift] || { v: '', reps: 5, rpe: 8, e1rm: '', ww: '', wf: '' };
   $('#main').innerHTML = `
   <div class="card"><h2>Last rep speed → RPE</h2>
     <p class="hint">Type the speed of the last rep of a set.</p>
